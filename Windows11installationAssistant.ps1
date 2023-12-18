@@ -1,12 +1,16 @@
 # Declare Functions and Variables@
 # Process name to check
-
 $BLinfo = Get-Bitlockervolume
-
-
-
-
 $processName = "win11*"
+
+    # Declarations
+    [string]$DownloadDir = 'C:\Temp\Windows_FU\packages'
+    [string]$LogDir = 'C:\Temp\Windows_FU\Logs'
+    [string]$LogFilePath = [string]::Format("{0}\{1}_{2}.log", $LogDir, "$(get-date -format `"yyyyMMdd_hhmmsstt`")", $MyInvocation.MyCommand.Name.Replace(".ps1", ""))
+    [string]$Url = 'https://go.microsoft.com/fwlink/?linkid=2171764'
+    [string]$UpdaterBinary = "$($DownloadDir)\Win11Upgrade.exe"
+
+    
 
 function Write-Log { 
     [CmdletBinding()] 
@@ -64,21 +68,12 @@ function Test-PendingReboot {
 $TestPending = Test-PendingReboot
 $version = (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetValue('DisplayVersion')
 
-try{
-
-    if($blinfo.ProtectionStatus -eq 'On' -and $blinfo.EncryptionPercentage -eq '100'){
-    Write-Log -Message "'$env:computername - '$($blinfo.MountPoint)' is encrypted"
-    
-if($version -NE "23H2")
+ 
+ if($version -NE "23H2")
 {
     
     try {
-    # Declarations
-    [string]$DownloadDir = 'C:\Temp\Windows_FU\packages'
-    [string]$LogDir = 'C:\Temp\Windows_FU\Logs'
-    [string]$LogFilePath = [string]::Format("{0}\{1}_{2}.log", $LogDir, "$(get-date -format `"yyyyMMdd_hhmmsstt`")", $MyInvocation.MyCommand.Name.Replace(".ps1", ""))
-    [string]$Url = 'https://go.microsoft.com/fwlink/?linkid=2171764'
-    [string]$UpdaterBinary = "$($DownloadDir)\Win11Upgrade.exe"
+
 
     # quietinstall: This argument typically instructs the installer to run in “quiet” mode, meaning it won’t display any user interface while installing.
     # /skipeula: This argument is often used to skip the display of the End User License Agreement (EULA) during installation.
@@ -131,46 +126,13 @@ catch {
     Write-Error $_.Exception.Message 
 }
 
-
-
 }
+
+ 
 
 else 
 {
-
-    Write-Log -Message "Operating System has already up to date. "
+    Write-Log -Message "Operating System has already up to date."
     Write-Log -Message (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetValue('DisplayVersion')
     Write-Log -Message ([string]::Format("Current Windows Version: {0}", [System.Environment]::OSVersion.ToString()))
- 
-
 }
-
-
-    }
-
-
- else
-   {
-
-    Write-Log -Message "'$env:computername - '$($blinfo.MountPoint)' has an issue with Bitlocker!"
-    break
-
-   }
-
-
-
-}
- catch {
-    
-    Write-Log -Message "Catch Error!"
-    break
-
- }
-
-
-
-
-
-
-
-
