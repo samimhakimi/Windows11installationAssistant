@@ -1,8 +1,12 @@
 # Declare Functions and Variables@
-
 # Process name to check
-$processName = "win11*"
 
+$BLinfo = Get-Bitlockervolume
+
+
+
+
+$processName = "win11*"
 
 function Write-Log { 
     [CmdletBinding()] 
@@ -58,13 +62,16 @@ function Test-PendingReboot {
 
 
 $TestPending = Test-PendingReboot
-
-
-
 $version = (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetValue('DisplayVersion')
 
+try{
+
+    if($blinfo.ProtectionStatus -eq 'On' -and $blinfo.EncryptionPercentage -eq '100'){
+    Write-Log -Message "'$env:computername - '$($blinfo.MountPoint)' is encrypted"
+    
 if($version -NE "23H2")
 {
+    
     try {
     # Declarations
     [string]$DownloadDir = 'C:\Temp\Windows_FU\packages'
@@ -137,3 +144,33 @@ else
  
 
 }
+
+
+    }
+
+
+ else
+   {
+
+    Write-Log -Message "'$env:computername - '$($blinfo.MountPoint)' has an issue with Bitlocker!"
+    break
+
+   }
+
+
+
+}
+ catch {
+    
+    Write-Log -Message "Catch Error!"
+    break
+
+ }
+
+
+
+
+
+
+
+
