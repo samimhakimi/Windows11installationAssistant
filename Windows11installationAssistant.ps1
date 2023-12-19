@@ -1,7 +1,7 @@
 # Declare Functions and Variables@
 # Process name to check
 $BLinfo = Get-Bitlockervolume
-$processName = "win11*"
+$processName = "Win11Upgrade"
 
     # Declarations
     [string]$DownloadDir = 'C:\Temp\Windows_FU\packages'
@@ -10,7 +10,7 @@ $processName = "win11*"
     [string]$Url = 'https://go.microsoft.com/fwlink/?linkid=2171764'
     [string]$UpdaterBinary = "$($DownloadDir)\Win11Upgrade.exe"
 
-    
+
 
 function Write-Log { 
     [CmdletBinding()] 
@@ -109,8 +109,9 @@ $version = (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetVal
         Remove-Item -Path $UpdaterBinary -Force
     }
     # Download the Windows Update Assistant
-    Write-Log -Message "Will try to download Windows Update Assistant.."
+    Write-Log -Message "Downloading Windows Update Assistant.."
     $webClient.DownloadFile($Url, $UpdaterBinary)
+
  
     # If the Update Assistant exists -> create a process with argument to initialize the update process
     if (Test-Path $UpdaterBinary) {
@@ -120,6 +121,28 @@ $version = (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetVal
     else {
         Write-Log -Message ([string]::Format("ERROR: File {0} does not exist!", $UpdaterBinary))
     }
+
+
+
+    # Log Folder created and Logging ...............
+    # Loop until the process is running
+     while ((Get-Process $processName -ErrorAction SilentlyContinue)) {
+    # Call your function
+    Write-Log -Message "Windows 11 Installation is in progress..."
+    # Wait for 5 seconds before checking again
+    Start-Sleep -Seconds 1
+}
+
+
+     while (!(Get-Process $processName -ErrorAction SilentlyContinue)) {
+    # Call your function
+    Write-Log -Message "Windows 11 Installation is not Running!!!"
+    # Wait for 5 seconds before checking again
+    Start-Sleep -Seconds 1
+}
+
+
+
 }
 catch {
     Write-Log -Message $_.Exception.Message 
