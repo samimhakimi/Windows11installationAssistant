@@ -112,6 +112,14 @@ $version = (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetVal
     Write-Log -Message "Downloading Windows Update Assistant.."
     $webClient.DownloadFile($Url, $UpdaterBinary)
 
+    # Pause for 5 seconds per loop
+Do {
+    Write-Log -Message "Windows 11 Installation is in progress..."
+    # Sleep 5 seconds
+    Start-Sleep -Seconds 5
+}
+while (Get-Process $processName)
+
  
     # If the Update Assistant exists -> create a process with argument to initialize the update process
     if (Test-Path $UpdaterBinary) {
@@ -122,32 +130,33 @@ $version = (Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetVal
         Write-Log -Message ([string]::Format("ERROR: File {0} does not exist!", $UpdaterBinary))
     }
 
-
-
-    # Log Folder created and Logging ...............
-    # Loop until the process is running
-     while ((Get-Process $processName -ErrorAction SilentlyContinue)) {
-    # Call your function
-    Write-Log -Message "Windows 11 Installation is in progress..."
-    # Wait for 5 seconds before checking again
-    Start-Sleep -Seconds 1
-}
-
-
-     while (!(Get-Process $processName -ErrorAction SilentlyContinue)) {
-    # Call your function
-    Write-Log -Message "Windows 11 Installation is not Running!!!"
-    # Wait for 5 seconds before checking again
-    Start-Sleep -Seconds 1
-}
-
-
-
 }
 catch {
     Write-Log -Message $_.Exception.Message 
     Write-Error $_.Exception.Message 
 }
+
+
+
+
+
+
+     while (!(Get-Process $processName )) {
+    # Call your function
+    Write-Log -Message "Windows 11 Installation is not Running!!!"
+    # Wait for 5 seconds before checking again
+    Start-Sleep -Seconds 5
+
+    if(!(Get-Process $processName))
+    {
+         Write-Log -Message "Windows 11 Installation is not Running!!!"
+         break
+
+    }
+
+   
+}
+
 
 }
 
